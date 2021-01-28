@@ -9,7 +9,7 @@ from sklearn.neural_network import MLPClassifier
 
 
 # calculate p-value at point x_i by resampling (x_i, U_i) where U_i is uniform
-def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.05, 0.95, 19), n_trials=100):
+def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.01, 0.99, 99), n_trials=200):
     
     with open(pit_values_dict_name, 'rb') as handle:
         pit_values_dict = pickle.load(handle)
@@ -26,7 +26,7 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.05, 0.95, 19), 
     for name, pit in pit_values_dict.items():
         all_rhat_alphas[name] = {}
         for alpha in alphas:
-            ind_values = [1*(x >= alpha/2 and x<=1-alpha/2) for x in pit]
+            ind_values = [1*(x<=alpha) for x in pit]
             rhat = MLPClassifier(alpha=0, max_iter=25000)
             rhat.fit(X=x_test, y=ind_values)
 
@@ -37,7 +37,7 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.05, 0.95, 19), 
         all_rhat_alphas[name] = pd.DataFrame(all_rhat_alphas[name])
 
         # compute Ti summary statistic
-        Ti_values[name] = ((all_rhat_alphas[name] - (1-alphas))**2).sum(axis=1) / len(alphas)
+        Ti_values[name] = ((all_rhat_alphas[name] - alphas)**2).sum(axis=1) / len(alphas)
     
     date_str = datetime.strftime(datetime.today(), '%Y-%m-%d-%H-%M')
     with open('Ti_values' + date_str + '.pkl', 'wb') as handle:
@@ -56,7 +56,7 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.05, 0.95, 19), 
             unif_values = np.random.uniform(size=pit.shape[0])
             all_rhat_classifiers[k][name] = {}
             for alpha in alphas:
-                ind_values_k = [1*(x >= alpha/2 and x<=1-alpha/2) for x in unif_values]
+                ind_values_k = [1*(x<=alpha) for x in unif_values]
                 rhat_k = MLPClassifier(alpha=0, max_iter=25000)
                 rhat_k.fit(X=x_test, y=ind_values_k)
 
@@ -70,7 +70,7 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.05, 0.95, 19), 
             all_rhat_alphas_k[name] = pd.DataFrame(all_rhat_alphas_k[name])
 
             # compute Ti summary statistic
-            Ti_values_k[name] = ((all_rhat_alphas_k[name] - (1-alphas))**2).sum(axis=1) / len(alphas)
+            Ti_values_k[name] = ((all_rhat_alphas_k[name] - alphas)**2).sum(axis=1) / len(alphas)
         
         all_unif_Ti_values[k] = Ti_values_k
     

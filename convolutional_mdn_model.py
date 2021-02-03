@@ -5,16 +5,14 @@ import ipdb
 
 
 class ConvMDNPerceptron(nn.Module):
-    #def __init__(self, n_input, n_hidden, n_gaussians):
     def __init__(self, n_hidden, n_gaussians):
         nn.Module.__init__(self)
         self.n_gaussians = n_gaussians
         
-        self.conv1 = nn.Conv2d(1,32,3,1)
-        self.conv2 = nn.Conv2d(32,64,3,1)
-        self.fc1 = nn.Linear(3072, 128)
+        self.conv1 = nn.Conv2d(1,6,3,1)
+        self.conv2 = nn.Conv2d(6,12,3,1)
+        self.fc1 = nn.Linear(768, 128)
         self.fc2 = nn.Linear(128, n_hidden)
-        #self.l1 = nn.Linear(n_input, n_hidden)
 
         self.z_pi = nn.Linear(n_hidden, n_gaussians)
         self.z_mu = nn.Linear(n_hidden, 2*n_gaussians)
@@ -26,7 +24,6 @@ class ConvMDNPerceptron(nn.Module):
     pi - probability distribution over the gaussians
     """
     def forward(self, x):
-        #hidden = torch.tanh(self.l1(x))
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
@@ -35,7 +32,7 @@ class ConvMDNPerceptron(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.fc2(x)
+        hidden = self.fc2(x)
         
         pi = F.softmax(self.z_pi(hidden), 1)
         mu = self.z_mu(hidden)

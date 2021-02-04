@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-#import ipdb
 
 
 class MDNPerceptron(nn.Module):
@@ -10,9 +9,8 @@ class MDNPerceptron(nn.Module):
         self.n_gaussians = n_gaussians
         self.l1 = nn.Linear(n_input, n_hidden)
 
+        # assuming bivariate output
         self.z_pi = nn.Linear(n_hidden, n_gaussians)
-        #self.z_mu = nn.Linear(n_hidden, n_gaussians)
-        #self.z_sigma = nn.Linear(n_hidden, n_gaussians)
         self.z_mu = nn.Linear(n_hidden, 2*n_gaussians)
         self.z_sigma = nn.Linear(n_hidden, 2*n_gaussians)
 
@@ -44,7 +42,6 @@ class MDNPerceptron(nn.Module):
     Gaussians are weighted according to the pi parameter 
     """
     def loss_fn(self, y, pi, mu, sigma):
-        #mixture = torch.distributions.normal.Normal(mu, sigma)
         probs = []
         for i in range(self.n_gaussians):
             z = torch.zeros(size=[mu.size(0)])
@@ -57,7 +54,6 @@ class MDNPerceptron(nn.Module):
             prob = torch.exp(log_prob)
             probs.append(prob)
         probs = torch.stack(probs).T
-        #weighted_prob = prob * pi
         weighted_prob = probs * pi
         sum = torch.sum(weighted_prob, dim=1)
         log_prob_loss = -torch.log(sum)

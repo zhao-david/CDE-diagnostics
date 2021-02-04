@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-#import ipdb
 
 
 class ConvMDNPerceptron(nn.Module):
@@ -20,7 +19,7 @@ class ConvMDNPerceptron(nn.Module):
 
     """ Returns parameters for a mixture of gaussians given x
     mu - vector of means of the gaussians
-    sigma - vector of the standard deviation of the gaussians
+    sigma - vector representing the diagonals of the covariances of the gaussians
     pi - probability distribution over the gaussians
     """
     def forward(self, x):

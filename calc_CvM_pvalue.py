@@ -9,14 +9,14 @@ from sklearn.neural_network import MLPClassifier
 
 
 # calculate p-value at point x_i by resampling (x_i, U_i) where U_i is uniform
-def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.01, 0.99, 99), n_trials=200):
+def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.1, 0.9, 9), n_trials=1000):
     
     with open(pit_values_dict_name, 'rb') as handle:
         pit_values_dict = pickle.load(handle)
     
     x_test = np.load(x_test_name)
     
-    x_range = np.linspace(-5,5,51)
+    x_range = np.linspace(-2,2,41)
     x1, x2 = np.meshgrid(x_range, x_range)
     grid = np.hstack([x1.ravel().reshape(-1,1), x2.ravel().reshape(-1,1)])
     
@@ -40,8 +40,10 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.01, 0.99, 99), 
         Ti_values[name] = ((all_rhat_alphas[name] - alphas)**2).sum(axis=1) / len(alphas)
     
     date_str = datetime.strftime(datetime.today(), '%Y-%m-%d-%H-%M')
-    with open('Ti_values' + date_str + '.pkl', 'wb') as handle:
+    with open('Ti_values_' + date_str + '.pkl', 'wb') as handle:
         pickle.dump(Ti_values, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('all_rhat_alphas_' + date_str + '.pkl', 'wb') as handle:
+        pickle.dump(all_rhat_alphas, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # refit the classifier using Unif[0,1] random values in place of true PIT values
     pbar = tqdm(total=n_trials, desc='Simulated Ti for Uniform Values')

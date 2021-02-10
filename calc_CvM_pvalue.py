@@ -9,16 +9,21 @@ from sklearn.neural_network import MLPClassifier
 
 
 # calculate p-value at point x_i by resampling (x_i, U_i) where U_i is uniform
-def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.1, 0.9, 9), n_trials=1000):
+def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.0, 1.0, 11), n_trials=1000, GalSim=False):
+    
+    alphas[-1] = 0.99
     
     with open(pit_values_dict_name, 'rb') as handle:
         pit_values_dict = pickle.load(handle)
     
     x_test = np.load(x_test_name)
     
-    x_range = np.linspace(-2,2,41)
-    x1, x2 = np.meshgrid(x_range, x_range)
-    grid = np.hstack([x1.ravel().reshape(-1,1), x2.ravel().reshape(-1,1)])
+    if GalSim:
+        grid = x_test
+    else:
+        x_range = np.linspace(-2,2,41)
+        x1, x2 = np.meshgrid(x_range, x_range)
+        grid = np.hstack([x1.ravel().reshape(-1,1), x2.ravel().reshape(-1,1)])
     
     # calculate T_i values across grid of x_i values
     Ti_values = {}
@@ -40,9 +45,14 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.1, 0.9, 9), n_t
         Ti_values[name] = ((all_rhat_alphas[name] - alphas)**2).sum(axis=1) / len(alphas)
     
     date_str = datetime.strftime(datetime.today(), '%Y-%m-%d-%H-%M')
-    with open('Ti_values_' + date_str + '.pkl', 'wb') as handle:
+    Ti_name = 'Ti_values_' + date_str + '.pkl'
+    alphas_name = 'all_rhat_alphas_' + date_str + '.pkl'
+    if GalSim:
+        Ti_name = 'GalSim_' + Ti_name
+        alphas_name = 'GalSim_' + alphas_name
+    with open(Ti_name, 'wb') as handle:
         pickle.dump(Ti_values, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('all_rhat_alphas_' + date_str + '.pkl', 'wb') as handle:
+    with open(alphas_name, 'wb') as handle:
         pickle.dump(all_rhat_alphas, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # refit the classifier using Unif[0,1] random values in place of true PIT values
@@ -79,9 +89,14 @@ def main(pit_values_dict_name, x_test_name, alphas=np.linspace(0.1, 0.9, 9), n_t
         pbar.update(1)
     
     date_str = datetime.strftime(datetime.today(), '%Y-%m-%d-%H-%M')
-    with open('all_unif_Ti_values_' + date_str + '.pkl', 'wb') as handle:
+    unif_name = 'all_unif_Ti_values_' + date_str + '.pkl'
+    rhat_name = 'all_rhat_classifiers_' + date_str + '.pkl'
+    if GalSim:
+        unif_name = 'GalSim_' + unif_name
+        rhat_name = 'GalSim_' + rhat_name
+    with open(unif_name, 'wb') as handle:
         pickle.dump(all_unif_Ti_values, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('all_rhat_classifiers_' + date_str + '.pkl', 'wb') as handle:
+    with open(rhat_name, 'wb') as handle:
         pickle.dump(all_rhat_classifiers, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     return
@@ -95,9 +110,12 @@ if __name__ == '__main__':
                         help='Name of pickled dictionary of PIT values')
     parser.add_argument('--x_test_name', action="store", type=str, default=None,
                         help='Name of saved numpy array of x_test values')
+    parser.add_argument('--GalSim', action='store_true', default=False,
+                        help='If true, we are running the GalSim example.')
     argument_parsed = parser.parse_args()
     
     main(
         pit_values_dict_name=argument_parsed.pit_values_dict_name,
-        x_test_name=argument_parsed.x_test_name
+        x_test_name=argument_parsed.x_test_name,
+        GalSim=argument_parsed.GalSim
     )

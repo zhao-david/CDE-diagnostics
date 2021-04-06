@@ -7,7 +7,7 @@ from datetime import datetime
 
 import torch
 from mdn_model import MDNPerceptron
-from convolutional_mdn_model_1D import ConvMDNPerceptron
+from convolutional_mdn_model import ConvMDNPerceptron
 import torch.nn as nn
 
 

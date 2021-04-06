@@ -14,8 +14,8 @@ class ConvMDNPerceptron(nn.Module):
         self.fc2 = nn.Linear(128, n_hidden)
 
         self.z_pi = nn.Linear(n_hidden, n_gaussians)
-        self.z_mu = nn.Linear(n_hidden, 2*n_gaussians)
-        self.z_sigma = nn.Linear(n_hidden, 2*n_gaussians)
+        self.z_mu = nn.Linear(n_hidden, n_gaussians)
+        self.z_sigma = nn.Linear(n_hidden, n_gaussians)
 
     """ Returns parameters for a mixture of gaussians given x
     mu - vector of means of the gaussians
@@ -51,21 +51,12 @@ class ConvMDNPerceptron(nn.Module):
     """Computes the log probability of the datapoint being
     drawn from all the gaussians parametized by the network.
     Gaussians are weighted according to the pi parameter 
-    """
+    """    
     def loss_fn(self, y, pi, mu, sigma):
-        probs = []
-        for i in range(self.n_gaussians):
-            z = torch.zeros(size=[mu.size(0)])
-            cov = torch.stack([
-                sigma[:, 2*i], z,
-                z, sigma[:, 2*i+1]
-            ], dim=-1).view(-1, 2, 2)
-            mixture = torch.distributions.multivariate_normal.MultivariateNormal(mu[:, 2*i:2*i+2], cov)
-            log_prob = mixture.log_prob(y)
-            prob = torch.exp(log_prob)
-            probs.append(prob)
-        probs = torch.stack(probs).T
-        weighted_prob = probs * pi
+        mixture = torch.distributions.normal.Normal(mu, sigma)
+        log_prob = mixture.log_prob(y.reshape(-1,1))
+        prob = torch.exp(log_prob)
+        weighted_prob = prob * pi
         sum = torch.sum(weighted_prob, dim=1)
         log_prob_loss = -torch.log(sum)
         ave_log_prob_loss = torch.mean(log_prob_loss)

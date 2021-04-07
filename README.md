@@ -12,3 +12,18 @@ CDE-diagnostics is available from PyPI; to install use
 ```{shell}
 pip install cde-diagnostics
 ```
+
+## References
+
+If you use this code in your research, please cite:
+
+```
+@article{zhao2021validating,
+      title={Validating Conditional Density Models and Bayesian Inference Algorithms}, 
+      author={David Zhao and Niccolò Dalmasso and Rafael Izbicki and Ann B. Lee},
+      year={2021},
+      eprint={2102.10473},
+      archivePrefix={arXiv},
+      primaryClass={stat.ME}
+}
+```

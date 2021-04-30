@@ -3,7 +3,8 @@ import pandas as pd
 from .classifiers import classifier_dict
 
 
-def global_test(x_train, pit_train, x_test, alphas=np.linspace(0.0, 1.0, 11), clf_name='MLP', n_trials=1000):
+def global_test(x_train, pit_train, x_test, alphas=np.linspace(0.0, 1.0, 11), clf_name='MLP', n_trials=1000,
+                return_T=False):
     
     clf = classifier_dict[clf_name]
     
@@ -35,5 +36,7 @@ def global_test(x_train, pit_train, x_test, alphas=np.linspace(0.0, 1.0, 11), cl
     ### compute global p-value
     global_pvalue = sum(1 * (Ti_values.sum() < pd.DataFrame(all_unif_Ti_values).sum(axis=0))) / len(all_unif_Ti_values)
     
-    return global_pvalue
-
+    if return_T:
+        return local_pvalue, Ti_values.sum()
+    else:
+        return local_pvalue

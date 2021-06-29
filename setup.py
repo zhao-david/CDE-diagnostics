@@ -6,9 +6,9 @@ with open("README.md", "r") as f:
     README_TEXT = f.read()
 
 setup(name="cde-diagnostics",
-      version="0.1",
+      version="0.2",
       license="MIT",
-      description="Validates conditional density estimators locally and globally in feature space",
+      description="Diagnostics for conditional density estimators locally and globally in feature space",
       long_description = README_TEXT,
       long_description_content_type='text/markdown; variant=GFM',
       author           = "David Zhao",

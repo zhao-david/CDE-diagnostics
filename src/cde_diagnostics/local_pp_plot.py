@@ -41,7 +41,7 @@ def local_pp_plot(x_train, pit_train, x_test, alphas=np.linspace(0.0, 0.999, 101
             null_alphas[k] = pd.Series(all_rhat_alphas_k)
             
         lower_band = pd.DataFrame(null_alphas).quantile(q=conf_alpha/2, axis=1)
-        upper_band = pd.DataFrame(null_alphas).quantile(q=(1-conf_alpha)/2, axis=1)
+        upper_band = pd.DataFrame(null_alphas).quantile(q=1-conf_alpha/2, axis=1)
         
         plt.fill_between(alphas,
                          lower_band,

@@ -37,6 +37,6 @@ def global_test(x_train, pit_train, x_test, alphas=np.linspace(0.0, 1.0, 11), cl
     global_pvalue = sum(1 * (Ti_values.sum() < pd.DataFrame(all_unif_Ti_values).sum(axis=0))) / len(all_unif_Ti_values)
     
     if return_T:
-        return local_pvalue, Ti_values.sum()
+        return global_pvalue, Ti_values.sum()
     else:
-        return local_pvalue
+        return global_pvalue

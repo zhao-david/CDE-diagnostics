@@ -1,6 +1,6 @@
 from setuptools import setup
 
-import numpy as np
+#import numpy as np
 
 with open("README.md", "r") as f:
     README_TEXT = f.read()
@@ -23,9 +23,9 @@ setup(name="cde-diagnostics",
       package_dir={"": "src"},
       packages=["cde_diagnostics"],
       python_requires=">=2.7",
-      install_requires=["numpy", "scipy", "sklearn"],
+      install_requires=["numpy<2", "scipy", "scikit-learn"],
       setup_requires=["pytest-runner"],
-      tests_require=["pytest"],
+      tests_require=["pytest", "xgboost","pandas"], #repo does not contain any unit tests
       zip_safe=False,
       include_package_data=True,
 )
